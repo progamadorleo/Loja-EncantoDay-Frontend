@@ -88,63 +88,64 @@ export function PromoBanner() {
   const images = banner.images || []
 
   return (
-    <section className={`relative overflow-hidden ${banner.bg_color || 'bg-gradient-to-br from-rose-50 via-pink-50 to-fuchsia-50'}`}>
-      <div className="mx-auto max-w-7xl px-4 py-8 md:py-12">
+    <section className={`relative ${banner.bg_color || 'bg-gradient-to-br from-rose-50 via-pink-50 to-fuchsia-50'}`}>
+      <div className="mx-auto max-w-7xl px-4 py-6 md:py-12">
         <div 
-          className={`flex flex-col items-center gap-8 lg:flex-row lg:justify-between transition-all duration-500 ease-out ${
+          className={`flex flex-col items-center gap-6 lg:flex-row lg:justify-between transition-all duration-500 ease-out ${
             isTransitioning ? 'opacity-0 transform translate-y-4' : 'opacity-100 transform translate-y-0'
           }`}
         >
           {/* Conteudo do texto */}
-          <div className="text-center lg:text-left lg:max-w-md shrink-0">
-            <h2 className="text-5xl font-black text-primary italic md:text-6xl lg:text-7xl">
+          <div className="text-center lg:text-left lg:max-w-md shrink-0 order-1">
+            <h2 className="text-4xl font-black text-primary italic md:text-5xl lg:text-7xl">
               {banner.title}
             </h2>
             {banner.subtitle && (
-              <p className="text-4xl font-black text-foreground md:text-5xl lg:text-6xl mt-1">
+              <p className="text-3xl font-black text-foreground md:text-4xl lg:text-6xl mt-1">
                 {banner.subtitle}
               </p>
             )}
             {banner.description && (
-              <p className="mt-5 text-base text-muted-foreground md:text-lg">
+              <p className="mt-3 text-sm text-muted-foreground md:text-base lg:text-lg">
                 {banner.description}
               </p>
             )}
             {banner.highlight && (
-              <p className="text-3xl font-black text-foreground md:text-4xl lg:text-5xl mt-2">
+              <p className="text-2xl font-black text-foreground md:text-3xl lg:text-5xl mt-2">
                 {banner.highlight}
-              </p>
-            )}
-            {banner.disclaimer && (
-              <p className="mt-5 text-xs text-muted-foreground/70 max-w-sm mx-auto lg:mx-0 leading-relaxed">
-                {banner.disclaimer}
               </p>
             )}
             
             {/* Botao CTA */}
             {banner.link_url && (
-              <div className="mt-8">
+              <div className="mt-4 md:mt-6">
                 <Link href={banner.link_url}>
-                  <Button size="lg" className="rounded-full px-10 py-6 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
+                  <Button size="lg" className="rounded-full px-8 py-5 md:px-10 md:py-6 text-sm md:text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
                     {banner.link_text || "confira"}
                   </Button>
                 </Link>
               </div>
             )}
+            
+            {banner.disclaimer && (
+              <p className="mt-3 text-xs text-muted-foreground/70 max-w-xs mx-auto lg:mx-0 leading-relaxed hidden md:block">
+                {banner.disclaimer}
+              </p>
+            )}
           </div>
 
           {/* Cards de produtos */}
           {images.length > 0 && (
-            <div className="flex items-center justify-center gap-4 md:gap-5 overflow-x-auto pb-2">
-              {images.map((imageUrl, index) => (
+            <div className="flex items-center justify-center gap-3 md:gap-4 order-2 py-2">
+              {images.slice(0, 3).map((imageUrl, index) => (
                 <div 
                   key={index}
-                  className="shrink-0 bg-white rounded-2xl shadow-lg p-4 md:p-5 cursor-pointer transition-transform duration-300 hover:scale-105"
+                  className="shrink-0 bg-white rounded-xl md:rounded-2xl shadow-md md:shadow-lg p-2 md:p-4 cursor-pointer transition-transform duration-300 hover:scale-105"
                 >
                   <img 
                     src={imageUrl} 
                     alt={`Produto ${index + 1}`}
-                    className="h-28 w-24 md:h-40 md:w-32 object-contain"
+                    className="h-20 w-16 md:h-32 md:w-28 lg:h-40 lg:w-32 object-contain"
                   />
                 </div>
               ))}
@@ -154,25 +155,25 @@ export function PromoBanner() {
           {/* Badge de preco */}
           {banner.price_value && (
             <div 
-              className={`shrink-0 ${banner.accent_color || 'bg-primary'} rounded-3xl p-5 text-center text-primary-foreground md:p-8 shadow-xl transition-transform duration-300 hover:scale-105`}
+              className={`shrink-0 ${banner.accent_color || 'bg-primary'} rounded-2xl md:rounded-3xl p-4 md:p-6 lg:p-8 text-center text-primary-foreground shadow-lg md:shadow-xl transition-transform duration-300 hover:scale-105 order-3`}
             >
               {banner.price_label && (
-                <p className="text-sm opacity-90 md:text-base">{banner.price_label}</p>
+                <p className="text-xs md:text-sm lg:text-base opacity-90">{banner.price_label}</p>
               )}
               <div className="flex items-start justify-center">
-                <span className="text-2xl font-bold md:text-4xl">{banner.price_value}</span>
+                <span className="text-xl md:text-3xl lg:text-4xl font-bold">{banner.price_value}</span>
                 <div className="text-left">
-                  <span className="text-lg font-bold md:text-2xl">{banner.price_cents}</span>
+                  <span className="text-base md:text-xl lg:text-2xl font-bold">{banner.price_cents}</span>
                   <p className="text-xs md:text-sm">cada</p>
                 </div>
               </div>
               {banner.installments && (
-                <p className="text-sm mt-2 md:text-base">
+                <p className="text-xs md:text-sm lg:text-base mt-1 md:mt-2">
                   <span className="font-bold">{banner.installments}</span>
                 </p>
               )}
               {banner.full_price && (
-                <p className="text-xs mt-1 opacity-80 md:text-sm">{banner.full_price}</p>
+                <p className="text-xs mt-1 opacity-80">{banner.full_price}</p>
               )}
             </div>
           )}
