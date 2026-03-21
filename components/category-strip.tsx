@@ -119,7 +119,10 @@ export function CategoryStrip() {
     return (
       <section className="py-8 bg-background relative z-10">
         <div className="mx-auto max-w-7xl px-4">
-          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide md:justify-center md:gap-6 lg:gap-8">
+          <div 
+            className="flex gap-4 overflow-x-auto pb-2 md:justify-center md:gap-6 lg:gap-8"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
             {Array.from({ length: 6 }).map((_, i) => (
               <CategorySkeleton key={i} />
             ))}
@@ -136,7 +139,10 @@ export function CategoryStrip() {
   return (
     <section className="py-8 bg-background relative z-10">
       <div className="mx-auto max-w-7xl px-4">
-        <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide md:justify-center md:gap-6 lg:gap-8">
+        <div 
+            className="flex gap-4 overflow-x-auto pb-2 md:justify-center md:gap-6 lg:gap-8"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
           {categories.map((cat, index) => {
             const style = categoryStyles[index % categoryStyles.length]
             const Icon = getCategoryIcon(cat)
