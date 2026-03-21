@@ -127,11 +127,11 @@ function ProductCardSkeleton() {
   return (
     <div className="flex flex-col bg-card rounded-xl overflow-hidden shadow-sm animate-pulse">
       <Skeleton className="aspect-square" />
-      <div className="p-4 space-y-3">
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-3 w-2/3" />
-        <Skeleton className="h-6 w-1/2" />
-        <Skeleton className="h-10 w-full" />
+      <div className="p-3 md:p-4 space-y-2 md:space-y-3">
+        <Skeleton className="h-3 md:h-4 w-full" />
+        <Skeleton className="h-2.5 md:h-3 w-2/3" />
+        <Skeleton className="h-5 md:h-6 w-1/2" />
+        <Skeleton className="h-8 md:h-10 w-full rounded-lg" />
       </div>
     </div>
   )

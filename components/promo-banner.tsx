@@ -58,20 +58,22 @@ export function PromoBanner() {
     return (
       <section className="bg-gradient-to-br from-rose-50 via-pink-50 to-fuchsia-50 dark:from-rose-950/40 dark:via-pink-950/30 dark:to-fuchsia-950/20">
         <div className="mx-auto max-w-7xl px-4 py-8 md:py-12">
-          <div className="flex flex-col items-center gap-8 md:flex-row md:justify-between">
-            <div className="text-center md:text-left space-y-4 animate-pulse">
-              <Skeleton className="h-12 w-48" />
-              <Skeleton className="h-10 w-40" />
-              <Skeleton className="h-6 w-64" />
-              <Skeleton className="h-10 w-32" />
+          <div className="flex flex-col items-center gap-6 lg:flex-row lg:justify-between">
+            {/* Texto skeleton */}
+            <div className="text-center lg:text-left space-y-3 w-full lg:w-auto">
+              <Skeleton className="h-10 w-40 mx-auto lg:mx-0" />
+              <Skeleton className="h-8 w-32 mx-auto lg:mx-0" />
+              <Skeleton className="h-4 w-48 mx-auto lg:mx-0" />
+              <Skeleton className="h-10 w-28 mx-auto lg:mx-0 rounded-full mt-4" />
             </div>
-            <div className="flex items-center gap-4">
-              <Skeleton className="h-32 w-24 rounded-2xl" />
-              <Skeleton className="h-32 w-24 rounded-2xl" />
-              <Skeleton className="h-32 w-24 rounded-2xl" />
-              <Skeleton className="h-32 w-24 rounded-2xl" />
-              <Skeleton className="h-24 w-24 rounded-full" />
+            {/* Cards skeleton - escondido no mobile pequeno */}
+            <div className="hidden sm:flex items-center gap-3 md:gap-4">
+              <Skeleton className="h-24 w-20 md:h-32 md:w-24 rounded-xl" />
+              <Skeleton className="h-24 w-20 md:h-32 md:w-24 rounded-xl" />
+              <Skeleton className="h-24 w-20 md:h-32 md:w-24 rounded-xl hidden md:block" />
             </div>
+            {/* Badge preco skeleton */}
+            <Skeleton className="h-28 w-28 md:h-32 md:w-32 rounded-2xl" />
           </div>
         </div>
       </section>
