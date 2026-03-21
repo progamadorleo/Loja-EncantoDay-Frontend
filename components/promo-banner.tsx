@@ -198,7 +198,7 @@ export function PromoBanner() {
           </Button>
 
           {/* Indicadores */}
-          <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 gap-3">
+          <div className="relative mt-6 flex justify-center gap-3 md:absolute md:bottom-6 md:left-1/2 md:-translate-x-1/2 md:mt-0">
             {banners.map((_, index) => (
               <button
                 key={index}

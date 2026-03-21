@@ -299,6 +299,15 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Esconder scrollbar mas manter funcionalidade */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* Esconde elementos antes da animação */
 .animate-on-scroll {
   opacity: 0;
