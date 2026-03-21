@@ -20,24 +20,24 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: 'Encanto Day | Maquiagem que Encanta',
+  title: 'Encanto Day : Maquiagem que Encanta',
   description: 'Descubra a beleza que existe em você. Maquiagens de alta qualidade para realçar sua beleza natural.',
   icons: {
     icon: [
       {
-        url: '/logo.png',
+        url: '/favicon2.png',
         media: '(prefers-color-scheme: light)',
       },
       {
-        url: '/logo.png',
+        url: '/favicon2.png',
         media: '(prefers-color-scheme: dark)',
       },
       {
-        url: '/logo.png',
+        url: '/favicon2.png',
         type: 'image/svg+xml',
       },
     ],
-    apple: '/logo.png',
+    apple: '/favicon2.png',
   },
 }
 
