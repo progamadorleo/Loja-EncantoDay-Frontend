@@ -14,7 +14,7 @@ export default function Home() {
         <CategoryStrip />
         <ProductGrid title="queridinhos da Encanto Day" featured limit={4} />
         <FeaturedProduct />
-        <ProductGrid title="todos os produtos" limit={8} />
+        <ProductGrid title="todos os produtos" paginated initialLimit={8} />
       </main>
       <StoreFooter />
     </div>

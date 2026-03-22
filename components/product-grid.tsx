@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
-import { ShoppingCart, Plus, Loader2, Check } from "lucide-react"
+import { ShoppingCart, Plus, Loader2, Check, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { FavoriteButton } from "@/components/favorite-button"
@@ -142,23 +142,47 @@ interface ProductGridProps {
   featured?: boolean
   category?: string
   limit?: number
+  paginated?: boolean
+  initialLimit?: number
 }
 
-export function ProductGrid({ title, featured, category, limit = 8 }: ProductGridProps) {
+export function ProductGrid({ 
+  title, 
+  featured, 
+  category, 
+  limit = 8,
+  paginated = false,
+  initialLimit = 8
+}: ProductGridProps) {
   const [products, setProducts] = useState<Product[]>([])
+  const [allProducts, setAllProducts] = useState<Product[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [displayCount, setDisplayCount] = useState(initialLimit)
+  const [totalCount, setTotalCount] = useState(0)
 
   useEffect(() => {
     async function fetchProducts() {
       try {
         setIsLoading(true)
+        // Se paginado, busca mais produtos para ter estoque
+        const fetchLimit = paginated ? 100 : limit
         const response = await getProducts({ 
           featured, 
           category,
-          limit 
+          limit: fetchLimit
         })
-        setProducts(response.data || [])
+        const fetchedProducts = response.data || []
+        setAllProducts(fetchedProducts)
+        setTotalCount(fetchedProducts.length)
+        
+        // Se paginado, mostra apenas o initialLimit primeiro
+        if (paginated) {
+          setProducts(fetchedProducts.slice(0, initialLimit))
+        } else {
+          setProducts(fetchedProducts)
+        }
       } catch (err) {
         setError("Erro ao carregar produtos")
         console.error("Error fetching products:", err)
@@ -167,7 +191,24 @@ export function ProductGrid({ title, featured, category, limit = 8 }: ProductGri
       }
     }
     fetchProducts()
-  }, [featured, category, limit])
+  }, [featured, category, limit, paginated, initialLimit])
+
+  const loadMore = useCallback(() => {
+    if (isLoadingMore) return
+    
+    setIsLoadingMore(true)
+    
+    // Simula um pequeno delay para feedback visual
+    setTimeout(() => {
+      const newCount = Math.min(displayCount + 8, allProducts.length)
+      setDisplayCount(newCount)
+      setProducts(allProducts.slice(0, newCount))
+      setIsLoadingMore(false)
+    }, 300)
+  }, [displayCount, allProducts, isLoadingMore])
+
+  const hasMore = paginated && products.length < allProducts.length
+  const progress = totalCount > 0 ? (products.length / totalCount) * 100 : 0
 
   if (error) {
     return (
@@ -205,7 +246,54 @@ export function ProductGrid({ title, featured, category, limit = 8 }: ProductGri
             )}
           </div>
 
-          
+          {/* Paginacao */}
+          {paginated && !isLoading && products.length > 0 && (
+            <div className="mt-10 flex flex-col items-center gap-4">
+              {/* Barra de progresso */}
+              <div className="w-full max-w-md">
+                <div className="flex justify-between text-xs text-muted-foreground mb-2">
+                  <span>Mostrando {products.length} de {totalCount} produtos</span>
+                  <span>{Math.round(progress)}%</span>
+                </div>
+                <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-primary to-primary/70 rounded-full transition-all duration-500 ease-out"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Botao carregar mais */}
+              {hasMore && (
+                <Button
+                  onClick={loadMore}
+                  disabled={isLoadingMore}
+                  variant="outline"
+                  size="lg"
+                  className="group relative overflow-hidden rounded-full px-8 py-6 border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+                >
+                  {isLoadingMore ? (
+                    <>
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      Carregando...
+                    </>
+                  ) : (
+                    <>
+                      <span>Ver mais produtos</span>
+                      <ChevronDown className="ml-2 h-5 w-5 group-hover:translate-y-0.5 transition-transform" />
+                    </>
+                  )}
+                </Button>
+              )}
+
+              {/* Mensagem quando todos foram carregados */}
+              {!hasMore && totalCount > initialLimit && (
+                <p className="text-sm text-muted-foreground animate-fade-in">
+                  Voce viu todos os {totalCount} produtos
+                </p>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </section>
