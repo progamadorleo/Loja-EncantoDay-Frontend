@@ -6,13 +6,14 @@ type RequestOptions = {
   headers?: Record<string, string>
 }
 
-class ApiClient {
-  private getAccessToken(): string | null {
-    // Tenta pegar do localStorage (refresh token para re-auth)
-    // O access token real está em memória no AuthContext
-    return null
-  }
+// Callback para refresh que sera setado pelo AuthContext
+let onTokenRefresh: (() => Promise<string | null>) | null = null
 
+export function setTokenRefreshCallback(callback: () => Promise<string | null>) {
+  onTokenRefresh = callback
+}
+
+class ApiClient {
   async request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
     const { method = "GET", body, headers = {} } = options
 
@@ -39,19 +40,46 @@ class ApiClient {
     return response.json()
   }
 
-  // Helper com auth header
+  // Helper com auth header e retry automatico em caso de 401
   async authRequest<T>(
     endpoint: string, 
     accessToken: string,
-    options: RequestOptions = {}
+    options: RequestOptions = {},
+    retried = false
   ): Promise<T> {
-    return this.request<T>(endpoint, {
-      ...options,
+    const { method = "GET", body, headers = {} } = options
+
+    const config: RequestInit = {
+      method,
       headers: {
-        ...options.headers,
+        "Content-Type": "application/json",
+        ...headers,
         Authorization: `Bearer ${accessToken}`,
       },
-    })
+      credentials: "include",
+    }
+
+    if (body) {
+      config.body = JSON.stringify(body)
+    }
+
+    const response = await fetch(`${API_URL}${endpoint}`, config)
+
+    // Se 401 e ainda nao tentou refresh, tenta renovar o token
+    if (response.status === 401 && !retried && onTokenRefresh) {
+      const newToken = await onTokenRefresh()
+      if (newToken) {
+        // Retry com novo token
+        return this.authRequest<T>(endpoint, newToken, options, true)
+      }
+    }
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: "Erro desconhecido" }))
+      throw new Error(error.message || `HTTP ${response.status}`)
+    }
+
+    return response.json()
   }
 
   // Métodos de conveniência

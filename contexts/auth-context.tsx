@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react"
+import { setTokenRefreshCallback } from "@/lib/api"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
 
@@ -79,6 +80,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return false
     }
   }, [])
+
+  // Funcao que faz refresh e retorna o novo token (para o api client)
+  const refreshAndGetToken = useCallback(async (): Promise<string | null> => {
+    const success = await refreshAuth()
+    return success ? accessTokenMemory : null
+  }, [refreshAuth])
+
+  // Registra o callback para o api client usar quando receber 401
+  useEffect(() => {
+    setTokenRefreshCallback(refreshAndGetToken)
+  }, [refreshAndGetToken])
 
   const checkAuth = useCallback(async () => {
     try {
