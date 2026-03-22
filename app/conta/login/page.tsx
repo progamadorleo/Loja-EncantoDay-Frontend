@@ -256,7 +256,7 @@ function AuthPageContent() {
               )}
 
               {/* Login */}
-              <TabsContent value="login" className="mt-0">
+              <TabsContent value="login" className="mt-0 transition-opacity duration-200 data-[state=inactive]:hidden data-[state=active]:opacity-100">
                 <div className="text-center mb-8">
                   <h2 className="text-2xl lg:text-3xl font-bold text-foreground">Bem-vinda de volta!</h2>
                   <p className="mt-2 text-muted-foreground">
@@ -282,17 +282,9 @@ function AuthPageContent() {
                   </div>
 
                   <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <label htmlFor="login-password" className="block text-sm font-medium text-foreground">
-                        Senha
-                      </label>
-                      <Link 
-                        href="/conta/recuperar-senha" 
-                        className="text-sm text-primary hover:underline"
-                      >
-                        Esqueceu?
-                      </Link>
-                    </div>
+                    <label htmlFor="login-password" className="block text-sm font-medium text-foreground mb-2">
+                      Senha
+                    </label>
                     <div className="relative">
                       <Input
                         id="login-password"
@@ -332,7 +324,7 @@ function AuthPageContent() {
               </TabsContent>
 
               {/* Register */}
-              <TabsContent value="register" className="mt-0">
+              <TabsContent value="register" className="mt-0 transition-opacity duration-200 data-[state=inactive]:hidden data-[state=active]:opacity-100">
                 <div className="text-center mb-8">
                   <h2 className="text-2xl lg:text-3xl font-bold text-foreground">Crie sua conta</h2>
                   <p className="mt-2 text-muted-foreground">
@@ -493,6 +485,16 @@ function AuthPageContent() {
                 </form>
               </TabsContent>
             </Tabs>
+            
+            {/* Link admin discreto */}
+            <div className="mt-8 text-center">
+              <Link 
+                href="/admin/login" 
+                className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+              >
+                Administracao
+              </Link>
+            </div>
           </div>
         </div>
       </div>

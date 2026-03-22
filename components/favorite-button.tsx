@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { useCustomer } from "@/contexts/customer-context"
 import { toggleFavorite } from "@/lib/api"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
 
 interface FavoriteButtonProps {
   productId: string
@@ -32,7 +33,14 @@ export function FavoriteButton({
     e.stopPropagation()
     
     if (!isAuthenticated) {
-      router.push(`/conta/login?redirect=${encodeURIComponent(window.location.pathname)}`)
+      toast("Faca login para favoritar", {
+        description: "Crie uma conta ou entre para salvar seus produtos favoritos.",
+        action: {
+          label: "Entrar",
+          onClick: () => router.push(`/conta/login?redirect=${encodeURIComponent(window.location.pathname)}`),
+        },
+        duration: 5000,
+      })
       return
     }
     

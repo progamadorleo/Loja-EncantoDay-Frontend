@@ -87,8 +87,19 @@ export function PromoBanner() {
   const banner = banners[currentBanner]
   const images = banner.images || []
 
+  // Verificar se e cor customizada
+  const isCustomColor = banner.bg_color?.startsWith('custom:')
+  const customColorValue = isCustomColor ? banner.bg_color?.replace('custom:', '') : null
+  const bgClass = !isCustomColor ? (banner.bg_color || 'bg-gradient-to-br from-rose-50 via-pink-50 to-fuchsia-50') : ''
+  const customStyle = isCustomColor && customColorValue ? {
+    background: `linear-gradient(135deg, ${customColorValue}40, ${customColorValue}60, ${customColorValue}50)`
+  } : undefined
+
   return (
-    <section className={`relative ${banner.bg_color || 'bg-gradient-to-br from-rose-50 via-pink-50 to-fuchsia-50'}`}>
+    <section 
+      className={`relative ${bgClass}`}
+      style={customStyle}
+    >
       <div className="mx-auto max-w-7xl px-4 py-6 md:py-12">
         <div 
           className={`flex flex-col items-center gap-6 lg:flex-row lg:justify-between transition-all duration-500 ease-out ${

@@ -22,12 +22,27 @@ import { useAuth } from "@/contexts/auth-context"
 import { createBanner, uploadImage } from "@/lib/api"
 
 const BG_PRESETS = [
+  // Tons claros/pasteis
   { name: "Rosa/Pink", value: "bg-gradient-to-br from-rose-50 via-pink-50 to-fuchsia-50 dark:from-rose-950/40 dark:via-pink-950/30 dark:to-fuchsia-950/20" },
-  { name: "Slate/Neutro", value: "bg-gradient-to-br from-slate-50 via-stone-50 to-neutral-100 dark:from-slate-950/40 dark:via-stone-950/30 dark:to-neutral-950/20" },
+  { name: "Coral/Peach", value: "bg-gradient-to-br from-red-50 via-orange-50 to-amber-50 dark:from-red-950/40 dark:via-orange-950/30 dark:to-amber-950/20" },
   { name: "Amber/Dourado", value: "bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 dark:from-amber-950/40 dark:via-yellow-950/30 dark:to-orange-950/20" },
-  { name: "Emerald/Verde", value: "bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 dark:from-emerald-950/40 dark:via-green-950/30 dark:to-teal-950/20" },
+  { name: "Limao/Verde", value: "bg-gradient-to-br from-lime-50 via-green-50 to-emerald-50 dark:from-lime-950/40 dark:via-green-950/30 dark:to-emerald-950/20" },
+  { name: "Emerald/Teal", value: "bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 dark:from-emerald-950/40 dark:via-teal-950/30 dark:to-cyan-950/20" },
   { name: "Sky/Azul", value: "bg-gradient-to-br from-sky-50 via-blue-50 to-indigo-50 dark:from-sky-950/40 dark:via-blue-950/30 dark:to-indigo-950/20" },
   { name: "Violet/Roxo", value: "bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50 dark:from-violet-950/40 dark:via-purple-950/30 dark:to-fuchsia-950/20" },
+  { name: "Slate/Neutro", value: "bg-gradient-to-br from-slate-50 via-stone-50 to-neutral-100 dark:from-slate-950/40 dark:via-stone-950/30 dark:to-neutral-950/20" },
+  
+  // Tons vibrantes/fortes
+  { name: "Rosa Vibrante", value: "bg-gradient-to-br from-pink-200 via-rose-200 to-fuchsia-200 dark:from-pink-900/50 dark:via-rose-900/40 dark:to-fuchsia-900/30" },
+  { name: "Laranja Vibrante", value: "bg-gradient-to-br from-orange-200 via-amber-200 to-yellow-200 dark:from-orange-900/50 dark:via-amber-900/40 dark:to-yellow-900/30" },
+  { name: "Verde Vibrante", value: "bg-gradient-to-br from-green-200 via-emerald-200 to-teal-200 dark:from-green-900/50 dark:via-emerald-900/40 dark:to-teal-900/30" },
+  { name: "Azul Vibrante", value: "bg-gradient-to-br from-blue-200 via-sky-200 to-cyan-200 dark:from-blue-900/50 dark:via-sky-900/40 dark:to-cyan-900/30" },
+  { name: "Roxo Vibrante", value: "bg-gradient-to-br from-purple-200 via-violet-200 to-indigo-200 dark:from-purple-900/50 dark:via-violet-900/40 dark:to-indigo-900/30" },
+  
+  // Tons escuros/dark
+  { name: "Dark Rose", value: "bg-gradient-to-br from-rose-900 via-pink-900 to-fuchsia-900" },
+  { name: "Dark Ocean", value: "bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900" },
+  { name: "Dark Forest", value: "bg-gradient-to-br from-emerald-900 via-green-900 to-teal-900" },
 ]
 
 export default function NewBannerPage() {
@@ -60,6 +75,8 @@ export default function NewBannerPage() {
   const [error, setError] = useState("")
   const [showPreview, setShowPreview] = useState(false)
   const [newImageUrl, setNewImageUrl] = useState("")
+  const [useCustomColor, setUseCustomColor] = useState(false)
+  const [customColor, setCustomColor] = useState("#fdf2f8")
 
   function handleChange(field: string, value: string | boolean | number | string[]) {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -164,7 +181,12 @@ export default function NewBannerPage() {
 
         {/* Preview */}
         {showPreview && (
-          <div className={`rounded-2xl p-6 md:p-8 ${formData.bg_color}`}>
+          <div 
+            className={`rounded-2xl p-6 md:p-8 ${!formData.bg_color.startsWith('custom:') ? formData.bg_color : ''}`}
+            style={formData.bg_color.startsWith('custom:') ? { 
+              background: `linear-gradient(135deg, ${formData.bg_color.replace('custom:', '')}40, ${formData.bg_color.replace('custom:', '')}60, ${formData.bg_color.replace('custom:', '')}50)` 
+            } : undefined}
+          >
             <div className="flex flex-col items-center gap-8 lg:flex-row lg:justify-between">
               {/* Texto */}
               <div className="text-center lg:text-left lg:max-w-sm shrink-0">
@@ -404,23 +426,86 @@ export default function NewBannerPage() {
 
             {/* Visual */}
             <div className="bg-card rounded-xl border border-border p-6 space-y-4">
-              <h2 className="font-semibold text-foreground">Cor de Fundo</h2>
-              
-              <div className="grid grid-cols-3 gap-2">
-                {BG_PRESETS.map((preset) => (
-                  <button
-                    key={preset.value}
-                    type="button"
-                    className={`h-12 rounded-lg ${preset.value} border-2 transition-all ${
-                      formData.bg_color === preset.value 
-                        ? "border-primary ring-2 ring-primary/20" 
-                        : "border-transparent hover:border-muted-foreground/30"
-                    }`}
-                    onClick={() => handleChange("bg_color", preset.value)}
-                    title={preset.name}
+              <div className="flex items-center justify-between">
+                <h2 className="font-semibold text-foreground">Cor de Fundo</h2>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">Cor personalizada</span>
+                  <Switch
+                    checked={useCustomColor}
+                    onCheckedChange={(checked) => {
+                      setUseCustomColor(checked)
+                      if (checked) {
+                        handleChange("bg_color", `custom:${customColor}`)
+                      } else {
+                        handleChange("bg_color", BG_PRESETS[0].value)
+                      }
+                    }}
                   />
-                ))}
+                </div>
               </div>
+              
+              {useCustomColor ? (
+                <div className="space-y-4">
+                  <div className="flex gap-4 items-center">
+                    <div className="relative">
+                      <input
+                        type="color"
+                        value={customColor}
+                        onChange={(e) => {
+                          setCustomColor(e.target.value)
+                          handleChange("bg_color", `custom:${e.target.value}`)
+                        }}
+                        className="w-16 h-16 rounded-lg cursor-pointer border-2 border-border"
+                      />
+                    </div>
+                    <div className="flex-1 space-y-2">
+                      <label className="text-sm font-medium text-foreground">Codigo da cor</label>
+                      <Input
+                        value={customColor}
+                        onChange={(e) => {
+                          setCustomColor(e.target.value)
+                          handleChange("bg_color", `custom:${e.target.value}`)
+                        }}
+                        placeholder="#fdf2f8"
+                        className="font-mono"
+                      />
+                    </div>
+                  </div>
+                  
+                  {/* Preview da cor custom */}
+                  <div 
+                    className="h-16 rounded-lg border border-border"
+                    style={{ background: `linear-gradient(135deg, ${customColor}40, ${customColor}60, ${customColor}50)` }}
+                  />
+                  
+                  <p className="text-xs text-muted-foreground">
+                    A cor sera aplicada como um gradiente suave no banner.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <p className="text-xs text-muted-foreground mb-2">Gradientes pre-definidos</p>
+                  <div className="grid grid-cols-4 gap-2">
+                    {BG_PRESETS.map((preset) => (
+                      <button
+                        key={preset.value}
+                        type="button"
+                        className={`group relative h-14 rounded-lg ${preset.value} border-2 transition-all ${
+                          formData.bg_color === preset.value 
+                            ? "border-primary ring-2 ring-primary/20" 
+                            : "border-transparent hover:border-muted-foreground/30"
+                        }`}
+                        onClick={() => handleChange("bg_color", preset.value)}
+                        title={preset.name}
+                      >
+                        <span className="absolute inset-x-0 bottom-0.5 text-[8px] font-medium text-foreground/60 truncate px-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          {preset.name}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Link */}

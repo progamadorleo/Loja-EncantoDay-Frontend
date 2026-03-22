@@ -7,20 +7,7 @@ import { Search, User, ShoppingCart, Menu, X, Heart, LogIn, UserPlus, Loader2 } 
 import { Button } from "@/components/ui/button"
 import { useCustomer } from "@/contexts/customer-context"
 import { useCart } from "@/contexts/cart-context"
-import { getProducts, type Product } from "@/lib/api"
-
-const categories = [
-  "kits",
-  "labios",
-  "olhos",
-  "rosto",
-  "skincare",
-  "acessorios",
-  "perfumaria",
-  "cabelo",
-  "corpo",
-  "novidades",
-]
+import { getProducts, getCategories, type Product, type Category } from "@/lib/api"
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -30,6 +17,7 @@ export function Header() {
   const [searchResults, setSearchResults] = useState<Product[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [showSearchResults, setShowSearchResults] = useState(false)
+  const [categories, setCategories] = useState<Category[]>([])
   const { customer, isAuthenticated, isLoading, favoriteIds } = useCustomer()
   const { itemCount, openCart } = useCart()
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -37,6 +25,19 @@ export function Header() {
   const searchInputRef = useRef<HTMLInputElement>(null)
   const mobileSearchRef = useRef<HTMLDivElement>(null)
   const mobileSearchInputRef = useRef<HTMLInputElement>(null)
+
+  // Carregar categorias do backend
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        const response = await getCategories()
+        setCategories(response.data || [])
+      } catch (error) {
+        console.error("Erro ao carregar categorias:", error)
+      }
+    }
+    loadCategories()
+  }, [])
 
   // Detectar scroll para efeito de sombra
   useEffect(() => {
@@ -185,14 +186,14 @@ export function Header() {
                               <p className="text-sm font-medium text-foreground truncate">{product.name}</p>
                               <p className="text-xs text-muted-foreground truncate">{product.category?.name}</p>
                               <div className="flex items-center gap-2 mt-1">
-                                {product.sale_price ? (
-                                  <>
-                                    <span className="text-sm font-bold text-primary">{formatPrice(product.sale_price)}</span>
-                                    <span className="text-xs text-muted-foreground line-through">{formatPrice(product.price)}</span>
-                                  </>
-                                ) : (
-                                  <span className="text-sm font-bold text-foreground">{formatPrice(product.price)}</span>
-                                )}
+{product.original_price && product.original_price > product.price ? (
+  <>
+  <span className="text-sm font-bold text-primary">{formatPrice(product.price)}</span>
+  <span className="text-xs text-muted-foreground line-through">{formatPrice(product.original_price)}</span>
+  </>
+  ) : (
+  <span className="text-sm font-bold text-foreground">{formatPrice(product.price)}</span>
+  )}
                               </div>
                             </div>
                           </Link>
@@ -379,11 +380,11 @@ export function Header() {
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-foreground truncate">{product.name}</p>
                             <div className="flex items-center gap-2">
-                              {product.sale_price ? (
-                                <span className="text-sm font-bold text-primary">{formatPrice(product.sale_price)}</span>
-                              ) : (
-                                <span className="text-sm font-bold text-foreground">{formatPrice(product.price)}</span>
-                              )}
+{product.original_price && product.original_price > product.price ? (
+  <span className="text-sm font-bold text-primary">{formatPrice(product.price)}</span>
+  ) : (
+  <span className="text-sm font-bold text-foreground">{formatPrice(product.price)}</span>
+  )}
                             </div>
                           </div>
                         </Link>
@@ -412,12 +413,12 @@ export function Header() {
           <div className="mx-auto max-w-7xl px-4">
             <ul className="flex items-center justify-center gap-1">
               {categories.map((category, index) => (
-                <li key={category} className="animate-fade-in-down" style={{ animationDelay: `${index * 50}ms` }}>
+                <li key={category.id} className="animate-fade-in-down" style={{ animationDelay: `${index * 50}ms` }}>
                   <Link
-                    href={`/categoria/${category}`}
+                    href={`/categoria/${category.slug}`}
                     className="block px-4 py-3 text-sm font-medium text-foreground transition-all duration-200 hover:text-primary capitalize relative group"
                   >
-                    {category}
+                    {category.name}
                     <span className="absolute bottom-2 left-1/2 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-3/4 -translate-x-1/2" />
                   </Link>
                 </li>
@@ -482,16 +483,16 @@ export function Header() {
           <ul className="space-y-1">
             {categories.map((category, index) => (
               <li 
-                key={category}
+                key={category.id}
                 className="animate-fade-in-left"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
                 <Link
-                  href={`/categoria/${category}`}
+                  href={`/categoria/${category.slug}`}
                   className="block rounded-lg px-4 py-2.5 text-sm font-medium text-foreground transition-all duration-200 hover:bg-secondary hover:text-primary hover:pl-6 capitalize"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  {category}
+                  {category.name}
                 </Link>
               </li>
             ))}

@@ -22,9 +22,20 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { FieldGroup, Field, FieldLabel } from "@/components/ui/field"
-import { Plus, Pencil, Loader2 } from "lucide-react"
+import { Plus, Pencil, Trash2, Loader2 } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
-import { getAdminCategories, createCategory, updateCategory, type Category } from "@/lib/api"
+import { getAdminCategories, createCategory, updateCategory, deleteCategory, type Category } from "@/lib/api"
+import { toast } from "sonner"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 export default function CategoriesPage() {
   const { accessToken } = useAuth()
@@ -33,6 +44,9 @@ export default function CategoriesPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [editingCategory, setEditingCategory] = useState<Category | null>(null)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const [formData, setFormData] = useState({
     name: "",
@@ -110,16 +124,40 @@ export default function CategoriesPage() {
 
       if (editingCategory) {
         await updateCategory(accessToken, editingCategory.id, payload)
+        toast.success("Categoria atualizada com sucesso")
       } else {
         await createCategory(accessToken, payload)
+        toast.success("Categoria criada com sucesso")
       }
       
       fetchCategories()
       setIsDialogOpen(false)
-    } catch (error) {
-      console.error("Error saving category:", error)
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao salvar categoria")
     } finally {
       setIsSaving(false)
+    }
+  }
+
+  const handleDeleteClick = (category: Category) => {
+    setCategoryToDelete(category)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!accessToken || !categoryToDelete) return
+    setIsDeleting(true)
+
+    try {
+      const result = await deleteCategory(accessToken, categoryToDelete.id)
+      toast.success(result.message || "Categoria excluida com sucesso")
+      fetchCategories()
+      setDeleteDialogOpen(false)
+      setCategoryToDelete(null)
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao excluir categoria")
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -175,13 +213,23 @@ export default function CategoriesPage() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleOpenDialog(category)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleOpenDialog(category)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDeleteClick(category)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
@@ -274,6 +322,30 @@ export default function CategoriesPage() {
             </form>
           </DialogContent>
         </Dialog>
+
+        {/* Dialog de confirmacao de exclusao */}
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Excluir categoria</AlertDialogTitle>
+              <AlertDialogDescription>
+                Tem certeza que deseja excluir a categoria &quot;{categoryToDelete?.name}&quot;?
+                Esta acao nao pode ser desfeita. Categorias com produtos vinculados nao podem ser excluidas.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteConfirm}
+                disabled={isDeleting}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Excluir
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </AdminShell>
   )
